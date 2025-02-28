@@ -136,30 +136,54 @@ def main():
     
     st.title("Resume Roast - AI Edition")
     
-    # Sidebar authentication
-    st.sidebar.header("Login / Signup")
-    username = st.sidebar.text_input("Username")
-    password = st.sidebar.text_input("Password", type="password")
-
-    # Handle login
-    if st.sidebar.button("Login"):
-        if authenticate(username, password):
-            st.sidebar.success(f"Welcome {username}!")
-            st.session_state["authenticated"] = True
-        else:
-            st.sidebar.error("Invalid username or password")
-
-    # Handle signup
-    if st.sidebar.button("Signup"):
-        if username and password:  # Basic validation
-            save_user(username, password)
-            st.sidebar.success("Signup successful. Please login.")
-        else:
-            st.sidebar.error("Please provide both username and password")
-
-    # Main application area (only shown to authenticated users)
-    if "authenticated" in st.session_state and st.session_state["authenticated"]:
-        st.write("Upload your resume and let AI roast it!")
+    # Initialize session state for tracking the current view
+    if "view" not in st.session_state:
+        st.session_state.view = "login"  # Default view is login
+    
+    # Show authentication page if not logged in
+    if "authenticated" not in st.session_state or not st.session_state["authenticated"]:
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.subheader("Login")
+            login_username = st.text_input("Username", key="login_username")
+            login_password = st.text_input("Password", type="password", key="login_password")
+            
+            if st.button("Login"):
+                if authenticate(login_username, login_password):
+                    st.session_state["authenticated"] = True
+                    st.session_state["username"] = login_username
+                    st.rerun()
+                else:
+                    st.error("Invalid username or password")
+        
+        with col2:
+            st.subheader("Sign Up")
+            signup_username = st.text_input("Choose Username", key="signup_username")
+            signup_password = st.text_input("Choose Password", type="password", key="signup_password")
+            
+            if st.button("Sign Up"):
+                if signup_username and signup_password:  # Basic validation
+                    save_user(signup_username, signup_password)
+                    st.success("Signup successful! Please login.")
+                else:
+                    st.error("Please provide both username and password")
+    
+    # Show main application only after authentication
+    else:
+        # Show welcome message and logout button in a horizontal layout
+        col1, col2 = st.columns([3, 1])
+        with col1:
+            st.write(f"Welcome, {st.session_state.get('username', '')}! 👋")
+        with col2:
+            if st.button("Logout"):
+                st.session_state.clear()
+                st.rerun()
+        
+        st.write("---")  # Divider
+        
+        # Main application content
+        st.write("Upload your resume and let AI roast it! 🔥")
         uploaded_file = st.file_uploader("Upload your resume (PDF or TXT)", 
                                        type=["pdf", "txt"])
         
@@ -191,11 +215,6 @@ def main():
                         roast_result = roast_resume(resume_text)
                         st.subheader("🔥 AI's Roast of Your Resume 🔥")
                         st.write(roast_result)
-
-        # Logout button
-        if st.sidebar.button("Logout"):
-            st.session_state.pop("authenticated")
-            st.rerun()
 
 # ======================
 # Application Entry Point
