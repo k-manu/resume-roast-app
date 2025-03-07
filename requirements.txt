@@ -7,3 +7,4 @@ pillow
 streamlit-authenticator
 python-dotenv
 PyPDF2
+boto3

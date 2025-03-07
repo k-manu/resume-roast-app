@@ -8,12 +8,13 @@ A fun web application that uses Google's Gemini AI to roast your resume in a hum
 - Support for PDF and TXT resume uploads
 - AI-powered resume roasting using Google's Gemini model
 - Simple and intuitive web interface
-- Secure storage of user credentials
+- Secure storage of user credentials in AWS S3
 
 ## Prerequisites 📋
 
 - Python 3.8 or higher
 - A Google API key for Gemini AI
+- AWS account with S3 access
 - Internet connection
 
 ## Setup Instructions 🚀
@@ -50,11 +51,20 @@ A fun web application that uses Google's Gemini AI to roast your resume in a hum
    - Create a new API key
    - Copy the API key
 
-6. **Set up environment variables**
+6. **Set up AWS S3**
+   - Create an S3 bucket in your AWS account
+   - Create an IAM user with S3 access
+   - Note down the AWS access key ID and secret access key
+
+7. **Set up environment variables**
    - Create a `.env` file in the project root
-   - Add your API key:
+   - Add your API keys and configuration:
      ```
-     GEMINI_API_KEY=your_api_key_here
+     GEMINI_API_KEY=your_gemini_api_key_here
+     AWS_ACCESS_KEY_ID=your_aws_access_key_id
+     AWS_SECRET_ACCESS_KEY=your_aws_secret_access_key
+     AWS_REGION=your_aws_region
+     S3_BUCKET_NAME=your_s3_bucket_name
      ```
 
 ## Running the Application 🏃‍♂️
