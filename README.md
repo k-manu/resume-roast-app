@@ -1,3 +1,39 @@
+# MyRealProduct - Build Products; Not Just Projects
+
+Welcome to **MyRealProduct Workshop**! Whether you are a beginner or looking to level up your skills, these workshops will guide you through essential topics, tools, and hands-on guidance to help you build a solid profile. 
+
+## 📅 Upcoming Cohort
+
+We also feature **mentors** from the industry to share their experiences and insights!
+
+| **Session**                    | **Start Date**             | **Location**             | **Join Link**       |
+|---------------------------------|----------------------|--------------------------|---------------------|
+| April Cohort  | March 29, 2025           | Online (Virtual Breakout Rooms)            | [Join Here](https://myrealproduct.com/)      |
+
+---
+
+### 🚀 **[Register for MyRealProduct Workshop Here](https://myrealproduct.com/)**
+
+---
+
+<div align="center">
+	<p>
+		<a href="https://myrealproduct.com/">
+			<b>Join MyRealProduct Workshop!</b>
+			<br>
+			Build Products; Not Just Projects. Live Workshop!
+			<br>
+			<div>
+				<a href="https://myrealproduct.com/">
+					<img src="https://myrealproduct.com/wp-content/uploads/2024/06/cropped-Yellow-and-Green-Modern-Logo.png" width="300" alt="MyRealProduct Logo">
+				</a>
+			</div>
+		</a>
+		<sub><i>Join our community and get hands-on with building real product from scratch</i></sub>
+	</p>
+</div>
+
+---
 # Resume Roast - AI Edition 🔥
 
 A fun web application that uses Google's Gemini AI to roast your resume in a humorous, sarcastic way. Upload your resume and get ready for some brutal honesty wrapped in comedy!
