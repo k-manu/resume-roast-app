@@ -217,6 +217,13 @@ def main():
                     st.success("Signup successful! Please login.")
                 else:
                     st.error("Please provide both username and password")
+
+        # Add "Continue as Guest" option
+        st.markdown("---")  # Separator for better UI
+        if st.button("Continue as Guest"):
+            st.session_state["authenticated"] = True
+            st.session_state["username"] = "Guest"
+            st.rerun()
     
     # Show main application only after authentication
     else:
