@@ -38,6 +38,10 @@ We also feature **mentors** from the industry to share their experiences and ins
 
 A fun web application that uses Google's Gemini AI to roast your resume in a humorous, sarcastic way. Upload your resume and get ready for some brutal honesty wrapped in comedy!
 
+<p align="center">
+   <img src="assets/Resume Roast Demo.gif" width="500">
+</p>
+
 ## Features 🌟
 
 - User authentication with secure password hashing
