@@ -1,39 +1,3 @@
-# MyRealProduct - Build Products; Not Just Projects
-
-Welcome to **MyRealProduct Workshop**! Whether you are a beginner or looking to level up your skills, these workshops will guide you through essential topics, tools, and hands-on guidance to help you build a solid profile. 
-
-## 📅 Upcoming Cohort
-
-We also feature **mentors** from the industry to share their experiences and insights!
-
-| **Session**                    | **Start Date**             | **Location**             | **Join Link**       |
-|---------------------------------|----------------------|--------------------------|---------------------|
-| April Cohort  | March 29, 2025           | Online (Virtual Breakout Rooms)            | [Join Here](https://myrealproduct.com/)      |
-
----
-
-### 🚀 **[Register for MyRealProduct Workshop Here](https://myrealproduct.com/)**
-
----
-
-<div align="center">
-	<p>
-		<a href="https://myrealproduct.com/">
-			<b>Join MyRealProduct Workshop!</b>
-			<br>
-			Build Products; Not Just Projects. Live Workshop!
-			<br>
-			<div>
-				<a href="https://myrealproduct.com/">
-					<img src="https://myrealproduct.com/wp-content/uploads/2024/06/cropped-Yellow-and-Green-Modern-Logo.png" width="300" alt="MyRealProduct Logo">
-				</a>
-			</div>
-		</a>
-		<sub><i>Join our community and get hands-on with building real product from scratch</i></sub>
-	</p>
-</div>
-
----
 # Resume Roast - AI Edition 🔥
 
 A fun web application that uses Google's Gemini AI to roast your resume in a humorous, sarcastic way. Upload your resume and get ready for some brutal honesty wrapped in comedy!
@@ -48,13 +12,12 @@ A fun web application that uses Google's Gemini AI to roast your resume in a hum
 - Support for PDF and TXT resume uploads
 - AI-powered resume roasting using Google's Gemini model
 - Simple and intuitive web interface
-- Secure storage of user credentials in AWS S3
+- Local CSV storage for user credentials
 
 ## Prerequisites 📋
 
 - Python 3.8 or higher
 - A Google API key for Gemini AI
-- AWS account with S3 access
 - Internet connection
 
 ## Setup Instructions 🚀
@@ -91,25 +54,12 @@ A fun web application that uses Google's Gemini AI to roast your resume in a hum
    - Create a new API key
    - Copy the API key
 
-6. **Set up AWS S3**
-   - Create an S3 bucket in your AWS account
-   - Create an IAM user with S3 access
-   - Note down the AWS access key ID and secret access key
-
-7. **Set up environment variables**
+6. **Set up environment variables**
    - Create a `.env` file in the project root
-   - Add your API keys and configuration:
+   - Add your API key:
      ```
      GEMINI_API_KEY=your_gemini_api_key_here
-     AWS_ACCESS_KEY_ID=your_aws_access_key_id
-     AWS_SECRET_ACCESS_KEY=your_aws_secret_access_key
-     AWS_REGION=your_aws_region
-     S3_BUCKET_NAME=your_s3_bucket_name
      ```
-
-## AWS EC2 Setup Guide 🚀
-You can find [AWS EC2 Setup Guide](./AWS_setup.md) here.
-
 
 ## Running the Application Locally
 
@@ -146,6 +96,7 @@ You can find [AWS EC2 Setup Guide](./AWS_setup.md) here.
 - Passwords are securely hashed using SHA-256
 - Never share your API key
 - Keep your `.env` file private
+- User credentials are stored locally in a CSV file
 
 ## Troubleshooting 🔧
 
