@@ -2,9 +2,10 @@ streamlit
 google-generativeai
 python-dotenv
 requests
-pandas
+pandas>=2.0.0,<3.0.0
 pillow
-streamlit-authenticator
-python-dotenv
+streamlit-supabase-auth
+supabase
 PyPDF2
 boto3
+numpy>=1.20.0,<2.0.0
