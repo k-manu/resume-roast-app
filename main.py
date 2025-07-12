@@ -2,7 +2,7 @@ import os
 import json
 import io
 import streamlit as st
-import google.generativeai as genai
+import openai
 import PyPDF2
 from datetime import datetime
 from dotenv import load_dotenv
@@ -24,8 +24,8 @@ st.set_page_config(
 # Load environment variables from .env file
 load_dotenv()
 
-# Configure Gemini AI
-genai.configure(api_key=os.getenv('GEMINI_API_KEY'))
+# Configure OpenAI API
+openai.api_key = os.getenv('OPENAI_API_KEY')
 
 # Load Supabase credentials from Streamlit secrets
 SUPABASE_URL = st.secrets["SUPABASE_URL"]
@@ -73,10 +73,17 @@ def get_user_stats(user_id: str):
     Get user's processing statistics
     """
     try:
+        # Try to get stats with the user_id as provided
         result = supabase.table('processing_logs').select('*').eq('user_id', user_id).execute()
-        return result.data
+        
+        if result.data:
+            return result.data
+        
+        # If no data found, the user might not have processed any resumes yet
+        return []
+        
     except Exception as e:
-        st.error(f"Failed to fetch user stats: {str(e)}")
+        # Don't show error to user, just return empty list
         return []
 
 def store_user_preferences(user_id: str, preferences: dict):
@@ -84,12 +91,46 @@ def store_user_preferences(user_id: str, preferences: dict):
     Store user preferences for AI processing
     """
     try:
-        result = supabase.table('user_preferences').upsert({
-            'user_id': user_id,
-            'preferences': preferences,
-            'updated_at': datetime.utcnow().isoformat()
-        }).execute()
-        return result
+        # Convert user_id to UUID format if it's a string
+        import uuid
+        try:
+            # Validate UUID format
+            uuid_obj = uuid.UUID(user_id)
+            user_id_clean = str(uuid_obj)
+        except ValueError:
+            st.error(f"Invalid user ID format: {user_id}")
+            return None
+        
+        # First, check if record exists
+        existing_result = supabase.table('user_preferences').select('*').eq('user_id', user_id_clean).execute()
+        
+        if existing_result.data:
+            # Update existing record
+            result = supabase.table('user_preferences').update({
+                'preferences': preferences,
+                'updated_at': datetime.utcnow().isoformat()
+            }).eq('user_id', user_id_clean).execute()
+        else:
+            # Insert new record
+            result = supabase.table('user_preferences').insert({
+                'user_id': user_id_clean,
+                'preferences': preferences,
+                'updated_at': datetime.utcnow().isoformat()
+            }).execute()
+        
+        # Verify the data was actually stored
+        verification_result = supabase.table('user_preferences').select('*').eq('user_id', user_id_clean).execute()
+        
+        if verification_result.data:
+            stored_prefs = verification_result.data[0]['preferences']
+            # Check if the preferences match what we tried to store
+            if stored_prefs == preferences:
+                return result
+            else:
+                return None
+        else:
+            return None
+        
     except Exception as e:
         st.error(f"Failed to store preferences: {str(e)}")
         return None
@@ -112,7 +153,7 @@ def get_user_preferences(user_id: str):
 
 def roast_resume(resume_text: str, user_id: str = None, preferences: dict = None) -> tuple[str, dict]:
     """
-    Process resume text through Gemini AI for a humorous critique.
+    Process resume text through OpenAI for a humorous critique.
     Returns tuple of (roast_result, processing_stats)
     """
     start_time = datetime.now()
@@ -124,30 +165,47 @@ def roast_resume(resume_text: str, user_id: str = None, preferences: dict = None
     roast_style = preferences.get('roast_style', 'balanced')
     humor_level = preferences.get('humor_level', 'medium')
     
-    # Customize prompt based on preferences
+    # Customize prompt based on preferences - BRUTAL EDITION
     style_prompts = {
-        'gentle': "Give constructive feedback with light humor",
-        'balanced': "Roast my resume in a fun, sarcastic, and brutally honest way",
-        'savage': "Absolutely demolish this resume with dark humor and brutal honesty"
+        'gentle': "Tear this resume apart with sharp wit and cutting sarcasm, but don't completely destroy their soul",
+        'balanced': "Absolutely demolish this resume like Pete Davidson roasting someone - be merciless, cutting, and brutally honest with zero mercy",
+        'savage': "Obliterate this resume with the fury of a thousand suns. Make Gordon Ramsay look like a kindergarten teacher. Show no mercy, no compassion, just pure comedic brutality"
     }
     
     humor_prompts = {
-        'low': "Keep the humor professional and mild",
-        'medium': "Feel free to be a bit dark and mature with the humor",
-        'high': "Go all out with cringe-worthy, brutal humor and dad jokes"
+        'low': "Be ruthlessly sarcastic and cutting, but keep it somewhat professional",
+        'medium': "Go full savage mode - be cruel, dark, and brutally honest like a comedy roast",
+        'high': "Unleash absolute comedic hell - be merciless, savage, and destroy every aspect of this resume with brutal comedy"
     }
     
+    # Enhanced brutal prompt
     prompt = f"""{style_prompts.get(roast_style, style_prompts['balanced'])}. 
             {humor_prompts.get(humor_level, humor_prompts['medium'])}. 
-            Pretend I'm your friend, and keep it simple, sharp, and to the point, 
-            with a total word count under 150. 
-            My Resume:
+            
+            You are a savage comedy roast master with the wit of Pete Davidson and the brutal honesty of The Simpsons. 
+            Attack every weakness, mock every cliché, and destroy every poorly written section. 
+            Be technically brutal about skills, experience, and formatting. 
+            Make them question their career choices and life decisions.
+            
+            Find the most embarrassing and cringe-worthy parts and absolutely demolish them with cutting humor.
+            Be merciless about generic phrases, obvious lies, and pathetic attempts at sounding professional.
+            
+            Keep it under 150 words but make every word count like a surgical strike.
+            
+            Resume to destroy:
             {resume_text}"""
     
     try:
-        model = genai.GenerativeModel("gemini-2.0-pro-exp-02-05")
-        response = model.generate_content(prompt)
-        roast_result = response.text if response else "No response from AI."
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are a savage comedy roast master who destroys resumes with brutal honesty and cutting humor. You have the wit of Pete Davidson, the ruthlessness of Gordon Ramsay, and the sharp tongue of The Simpsons. Show no mercy. Be technically brutal about every aspect of the resume while maintaining comedic value. Your goal is to make them laugh while simultaneously destroying their confidence."},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=350,
+            temperature=0.9
+        )
+        roast_result = response.choices[0].message.content if response.choices else "No response from AI."
         
         # Calculate processing stats
         end_time = datetime.now()
@@ -157,7 +215,7 @@ def roast_resume(resume_text: str, user_id: str = None, preferences: dict = None
             'processing_time': processing_time,
             'roast_length': len(roast_result),
             'success': True,
-            'model_used': 'gemini-2.0-pro-exp-02-05',
+            'model_used': 'gpt-3.5-turbo',
             'roast_style': roast_style,
             'humor_level': humor_level
         }
@@ -340,7 +398,7 @@ def show_roast_page():
         # User Statistics
         with st.expander("📊 Your Roast Stats", expanded=False):
             user_stats = get_user_stats(user_id)
-            if user_stats:
+            if user_stats and len(user_stats) > 0:
                 total_roasts = len(user_stats)
                 successful_roasts = len([s for s in user_stats if s.get('success', True)])
                 avg_processing_time = sum(s.get('processing_time_seconds', 0) for s in user_stats) / len(user_stats)
@@ -350,15 +408,19 @@ def show_roast_page():
                 st.metric("Avg Processing Time", f"{avg_processing_time:.2f}s")
                 
                 # Recent activity
-                if len(user_stats) > 0:
-                    st.write("🕒 **Recent Activity:**")
-                    for stat in user_stats[-3:]:  # Last 3 roasts
-                        processed_at = stat.get('processed_at', 'Unknown')
-                        if processed_at != 'Unknown':
+                st.write("🕒 **Recent Activity:**")
+                for stat in user_stats[-3:]:  # Last 3 roasts
+                    processed_at = stat.get('processed_at', 'Unknown')
+                    if processed_at != 'Unknown':
+                        try:
                             processed_at = datetime.fromisoformat(processed_at.replace('Z', '+00:00')).strftime('%m/%d %H:%M')
-                        st.write(f"• {processed_at} - {stat.get('file_type', 'unknown').upper()}")
+                        except:
+                            processed_at = 'Unknown'
+                    st.write(f"• {processed_at} - {stat.get('file_type', 'unknown').upper()}")
             else:
-                st.info("No roasts yet! Upload your first resume below.")
+                st.info("🎯 **No roasts yet!**")
+                st.write("Upload a resume below to get started!")
+                st.write("📈 Your roast statistics will appear here after you've processed some resumes.")
         
         # User Preferences
         with st.expander("⚙️ Roast Preferences", expanded=False):
@@ -384,9 +446,11 @@ def show_roast_page():
                     'humor_level': humor_level
                 }
                 result = store_user_preferences(user_id, new_prefs)
-                if result:
-                    st.success("✅ Preferences saved!")
+                if result is not None:
+                    st.success("✅ Preferences actually saved and verified!")
                     st.rerun()
+                else:
+                    st.error("❌ Failed to save preferences. Check debug messages above.")
         
         st.markdown("---")
         if st.button("🏠 Back to Landing"):
